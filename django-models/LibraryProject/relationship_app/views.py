@@ -3,7 +3,8 @@ from django.views.generic import DetailView, ListView
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
-from django.contrib.auth.decorators import user_passes_test, permission_required
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import permission_required
 from django.urls import reverse_lazy
 from django.http import HttpResponseForbidden
 from .models import Library, Book, UserProfile, Author
