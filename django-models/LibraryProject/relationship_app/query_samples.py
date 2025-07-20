@@ -135,11 +135,11 @@ def create_sample_data():
     author3 = Author.objects.create(name="Jane Austen")
     
     # Create books
-    book1 = Book.objects.create(title="Harry Potter and the Philosopher's Stone", author=author1)
-    book2 = Book.objects.create(title="Harry Potter and the Chamber of Secrets", author=author1)
-    book3 = Book.objects.create(title="1984", author=author2)
-    book4 = Book.objects.create(title="Animal Farm", author=author2)
-    book5 = Book.objects.create(title="Pride and Prejudice", author=author3)
+    book1 = Book.objects.create(title="Harry Potter and the Philosopher's Stone", author=author1, publication_year=1997)
+    book2 = Book.objects.create(title="Harry Potter and the Chamber of Secrets", author=author1, publication_year=1998)
+    book3 = Book.objects.create(title="1984", author=author2, publication_year=1949)
+    book4 = Book.objects.create(title="Animal Farm", author=author2, publication_year=1945)
+    book5 = Book.objects.create(title="Pride and Prejudice", author=author3, publication_year=1813)
     
     # Create libraries
     library1 = Library.objects.create(name="Central Library")
