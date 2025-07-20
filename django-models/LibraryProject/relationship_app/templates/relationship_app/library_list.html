@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Libraries</title>
+</head>
+<body>
+    <h1>List of Libraries</h1>
+    <ul>
+        {% for library in libraries %}
+        <li>
+            <a href="{% url 'library_detail' library.pk %}">{{ library.name }}</a> - {{ library.location }}
+        </li>
+        {% empty %}
+        <li>No libraries found.</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'list_books' %}">View all books</a>
+</body>
+</html>
