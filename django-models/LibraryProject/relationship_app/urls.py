@@ -7,6 +7,7 @@ including both function-based and class-based views.
 
 from django.urls import path
 from .views import list_books
+from django.contrib.auth.views import LoginView, LogoutView
 from . import views
 
 urlpatterns = [
@@ -20,8 +21,8 @@ urlpatterns = [
     path('libraries/', views.LibraryListView.as_view(), name='library_list'),
 
     # Authentication URLs
-    path('login/', views.CustomLoginView.as_view(), name='login'),
-    path('logout/', views.CustomLogoutView.as_view(), name='logout'),
+    path('login/', LoginView.as_view(template_name='relationship_app/login.html', redirect_authenticated_user=True), name='login'),
+    path('logout/', LogoutView.as_view(template_name='relationship_app/logout.html'), name='logout'),
     path('register/', views.register, name='register'),
 
     # Role-based access control URLs
