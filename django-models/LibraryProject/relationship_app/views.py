@@ -3,9 +3,9 @@ from django.views.generic import DetailView, ListView
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
+from django.contrib.auth.decorators import user_passes_test
 from django.urls import reverse_lazy
-from .models import Library
-from .models import Book
+from .models import Library, Book, UserProfile
 
 # Create your views here.
 
@@ -69,3 +69,47 @@ def register(request):
         form = UserCreationForm()
 
     return render(request, 'relationship_app/register.html', {'form': form})
+
+
+# Role-Based Access Control Views
+
+def is_admin(user):
+    """Check if user has Admin role."""
+    return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == 'Admin'
+
+
+def is_librarian(user):
+    """Check if user has Librarian role."""
+    return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == 'Librarian'
+
+
+def is_member(user):
+    """Check if user has Member role."""
+    return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == 'Member'
+
+
+@user_passes_test(is_admin)
+def admin_view(request):
+    """
+    Admin-only view for managing the library system.
+    Only users with 'Admin' role can access this view.
+    """
+    return render(request, 'relationship_app/admin_view.html')
+
+
+@user_passes_test(is_librarian)
+def librarian_view(request):
+    """
+    Librarian-only view for managing books and library operations.
+    Only users with 'Librarian' role can access this view.
+    """
+    return render(request, 'relationship_app/librarian_view.html')
+
+
+@user_passes_test(is_member)
+def member_view(request):
+    """
+    Member-only view for browsing books and library services.
+    Only users with 'Member' role can access this view.
+    """
+    return render(request, 'relationship_app/member_view.html')
