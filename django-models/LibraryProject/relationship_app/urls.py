@@ -17,4 +17,9 @@ urlpatterns = [
 
     # Alternative ListView for libraries
     path('libraries/', views.LibraryListView.as_view(), name='library_list'),
+
+    # Authentication URLs
+    path('login/', views.CustomLoginView.as_view(), name='login'),
+    path('logout/', views.CustomLogoutView.as_view(), name='logout'),
+    path('register/', views.register, name='register'),
 ]
