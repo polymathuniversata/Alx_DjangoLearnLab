@@ -6,6 +6,8 @@ import sys
 
 def main():
     """Run administrative tasks."""
+    # Add LibraryProject to Python path
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'LibraryProject'))
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'LibraryProject.settings')
     try:
         from django.core.management import execute_from_command_line
