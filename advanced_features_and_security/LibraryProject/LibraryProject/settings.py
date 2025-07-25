@@ -11,9 +11,15 @@ AUTH_USER_MODEL = 'bookshelf.CustomUser'
 DEBUG = False  # Set to False for production. Use environment variable in real deployments.
 
 # Browser-side protections
-SECURE_BROWSER_XSS_FILTER = True  # Enables the X-XSS-Protection header
+SECURE_BROWSER_XSS_FILTER = True  # Enables the X-XSS-Protection header (prevents some XSS attacks)
 X_FRAME_OPTIONS = 'DENY'  # Prevents clickjacking by denying framing
 SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevents the browser from MIME-sniffing the content type
+
+# HTTPS enforcement and HSTS
+SECURE_SSL_REDIRECT = True  # Redirect all HTTP requests to HTTPS
+SECURE_HSTS_SECONDS = 31536000  # Instruct browsers to only use HTTPS for 1 year (recommended for production)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # Apply HSTS to all subdomains
+SECURE_HSTS_PRELOAD = True  # Allow site to be included in browser HSTS preload list
 
 # Cookies over HTTPS only
 CSRF_COOKIE_SECURE = True  # CSRF cookie sent only over HTTPS
