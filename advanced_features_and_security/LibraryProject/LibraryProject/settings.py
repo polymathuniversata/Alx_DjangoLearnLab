@@ -21,6 +21,10 @@ SECURE_HSTS_SECONDS = 31536000  # Instruct browsers to only use HTTPS for 1 year
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # Apply HSTS to all subdomains
 SECURE_HSTS_PRELOAD = True  # Allow site to be included in browser HSTS preload list
 
+# Secure proxy header for deployments behind a proxy (e.g., Nginx, Heroku)
+# This tells Django to trust the X-Forwarded-Proto header for HTTPS detection
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 # Cookies over HTTPS only
 CSRF_COOKIE_SECURE = True  # CSRF cookie sent only over HTTPS
 SESSION_COOKIE_SECURE = True  # Session cookie sent only over HTTPS
