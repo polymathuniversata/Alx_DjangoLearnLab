@@ -4,6 +4,7 @@ Views for bookshelf app. CRUD operations on Book model with permission enforceme
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import permission_required
 from .models import Book
+from .forms import ExampleForm  # Import ExampleForm for demonstration
 
 @permission_required('bookshelf.can_view', raise_exception=True)
 def book_list(request):
@@ -21,6 +22,23 @@ def book_create(request):
         Book.objects.create(title=title, author=author, publication_year=publication_year)
         return redirect('book_list')
     return render(request, 'add_book.html')
+
+# Add to urls.py:
+# path('example-form/', example_form_view, name='example_form'),
+@permission_required('bookshelf.can_create', raise_exception=True)
+def example_form_view(request):
+    """Display and process ExampleForm for demonstration."""
+    if request.method == 'POST':
+        form = ExampleForm(request.POST)
+        if form.is_valid():
+            # Normally process the data here
+            return render(request, 'bookshelf/form_example.html', {
+                'form': form,
+                'submitted': True,
+            })
+    else:
+        form = ExampleForm()
+    return render(request, 'bookshelf/form_example.html', {'form': form, 'submitted': False})
 
 @permission_required('bookshelf.can_edit', raise_exception=True)
 def book_edit(request, book_id):
