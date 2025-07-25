@@ -1,4 +1,7 @@
 
+"""
+Models for bookshelf app. Includes CustomUser and Book with custom permissions.
+"""
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
@@ -42,13 +45,15 @@ class CustomUser(AbstractUser):
         help_text="User's profile photo"
     )
     objects = CustomUserManager()
-    def __str__(self):
-        return self.username
+    def __str__(self) -> str:
+        """Return the string representation of the user."""
+        return str(self.username) if self.username is not None else ""
     class Meta:
         verbose_name = "Custom User"
         verbose_name_plural = "Custom Users"
 
 class Book(models.Model):
+    """Model representing a book in the library."""
     title = models.CharField(max_length=200)
     author = models.CharField(max_length=100)
     publication_year = models.IntegerField()
@@ -61,5 +66,6 @@ class Book(models.Model):
             ("can_delete", "Can delete book"),
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """Return the string representation of the book."""
         return f"{self.title} by {self.author} ({self.publication_year})"
