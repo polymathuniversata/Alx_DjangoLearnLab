@@ -1,1 +1,6 @@
-__COPY_FROM__:/home/polymathuniversata/PolymathUniversata/ALX Backend Engineering/advanced_features_and_security/LibraryProject/settings.py
+"""
+Django settings for LibraryProject project.
+Custom user model configuration.
+"""
+
+AUTH_USER_MODEL = 'bookshelf.CustomUser'
