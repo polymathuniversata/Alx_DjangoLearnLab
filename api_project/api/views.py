@@ -21,19 +21,33 @@ def api_root(request, format=None):
 class BookList(generics.ListAPIView):
     """
     API endpoint that allows books to be viewed.
+    Any user (authenticated or not) can view the list of books.
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.AllowAny]  # For testing purposes
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 class BookViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows books to be viewed or edited.
     Provides full CRUD operations for the Book model.
-    """
-    In production, you should use proper authentication.
+    
+    - List and retrieve operations are available to all users
+    - Create, update, and delete operations require authentication
+    - Only admin users can delete books
     """
     queryset = Book.objects.all().order_by('-id')
     serializer_class = BookSerializer
-    # Temporarily allowing any access for testing
-    permission_classes = [permissions.AllowAny]
+    
+    def get_permissions(self):
+        """
+        Instantiates and returns the list of permissions that this view requires.
+        """
+        if self.action == 'destroy':
+            permission_classes = [permissions.IsAdminUser]
+        elif self.action in ['create', 'update', 'partial_update']:
+            permission_classes = [permissions.IsAuthenticated]
+        else:  # 'list', 'retrieve'
+            permission_classes = [permissions.AllowAny]
+            
+        return [permission() for permission in permission_classes]
