@@ -7,11 +7,13 @@ import sys
 def main():
     """Run administrative tasks."""
     # Add the parent directory to the Python path
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    if parent_dir not in sys.path:
-        sys.path.insert(0, parent_dir)
+    project_path = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+    parent_path = os.path.abspath(os.path.join(project_path, '..'))
+    if parent_path not in sys.path:
+        sys.path.insert(0, parent_path)
     
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'api_project.settings')
+    
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
