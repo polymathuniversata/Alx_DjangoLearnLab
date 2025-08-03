@@ -1,9 +1,7 @@
-from rest_framework import viewsets, permissions, views
+from rest_framework import viewsets, permissions, views, generics
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework.reverse import reverse
 
 from .models import Book
 from .serializers import BookSerializer
@@ -18,6 +16,13 @@ def api_root(request, format=None):
             'api-auth': reverse('rest_framework:login', request=request, format=format) + '?next=/' if not request.user.is_authenticated else None
         }
     })
+
+class BookList(generics.ListAPIView):
+    """
+    API endpoint that allows books to be viewed.
+    """
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
 
 class BookViewSet(viewsets.ModelViewSet):
     """
