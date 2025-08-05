@@ -21,9 +21,9 @@ class BaseTestCase(APITestCase):
             password='testpass123',
             is_staff=True  # Make the user a staff member to bypass permission issues
         )
-        self.token = Token.objects.create(user=self.user)
         self.client = APIClient()
-        # We'll set the token in individual tests that need authentication
+        # Login the user for tests that require authentication
+        self.client.login(username='testuser', password='testpass123')
         
         # Create test data
         self.author1 = Author.objects.create(name='J.R.R. Tolkien')
@@ -55,7 +55,7 @@ class BaseTestCase(APITestCase):
         
         # Set up authenticated client
         self.authenticated_client = APIClient()
-        self.authenticated_client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.authenticated_client.login(username='testuser', password='testpass123')
 
 
 class AuthorViewSetTestCase(BaseTestCase):
@@ -63,6 +63,8 @@ class AuthorViewSetTestCase(BaseTestCase):
     
     def test_get_authors_unauthenticated(self):
         """Test that unauthenticated users can list authors."""
+        # Logout to test unauthenticated access
+        self.client.logout()
         response = self.client.get(self.author_list_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Check that we have the expected number of authors in the results
@@ -70,8 +72,7 @@ class AuthorViewSetTestCase(BaseTestCase):
         
     def test_create_author_unauthenticated(self):
         """Test that unauthenticated users cannot create authors."""
-        # Ensure client is not authenticated
-        self.client.credentials()
+        self.client.logout()
         data = {'name': 'New Author'}
         response = self.client.post(self.author_list_url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -79,7 +80,7 @@ class AuthorViewSetTestCase(BaseTestCase):
     def test_create_author_authenticated(self):
         """Test that authenticated users can create authors."""
         # Ensure client is authenticated
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.client.login(username='testuser', password='testpass123')
         # Get the current count of authors
         author_count = Author.objects.count()
         data = {'name': 'New Author'}
@@ -91,44 +92,47 @@ class AuthorViewSetTestCase(BaseTestCase):
         
     def test_retrieve_author(self):
         """Test retrieving a single author."""
-        # No authentication needed for GET requests
-        self.client.credentials()
-        author = Author.objects.first()
-        response = self.client.get(f"{self.author_detail_url(author.id)}")
+        # No authentication needed for retrieving
+        response = self.client.get(self.author_detail_url(self.author1.id))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['name'], author.name)
+        self.assertEqual(response.data['name'], self.author1.name)
         # Check if books are included in the response
         if 'books' in response.data:
-            self.assertEqual(len(response.data['books']), author.books.count())
+            self.assertEqual(len(response.data['books']), self.author1.books.count())
         
     def test_update_author_unauthenticated(self):
         """Test that unauthenticated users cannot update authors."""
-        self.client.credentials()  # Ensure no authentication
-        author = Author.objects.first()
-        data = {'name': 'Updated Author'}
-        response = self.client.put(self.author_detail_url(author.id), data, format='json')
+        self.client.logout()  # Ensure no authentication
+        data = {'name': 'Updated Author Name'}
+        response = self.client.put(
+            self.author_detail_url(self.author1.id),
+            data,
+            format='json'
+        )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         
     def test_update_author_authenticated(self):
         """Test that authenticated users can update authors."""
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        author = Author.objects.first()
-        data = {'name': 'Updated Author'}
-        response = self.client.put(self.author_detail_url(author.id), data, format='json')
+        self.client.login(username='testuser', password='testpass123')
+        data = {'name': 'Updated Author Name'}
+        response = self.client.put(
+            self.author_detail_url(self.author1.id),
+            data,
+            format='json'
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        author.refresh_from_db()
-        self.assertEqual(author.name, 'Updated Author')
+        self.assertEqual(response.data['name'], 'Updated Author Name')
         
     def test_delete_author_unauthenticated(self):
         """Test that unauthenticated users cannot delete authors."""
-        self.client.credentials()  # Ensure no authentication
+        self.client.logout()  # Ensure no authentication
         author = Author.objects.first()
         response = self.client.delete(self.author_detail_url(author.id))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         
     def test_delete_author_authenticated(self):
         """Test that authenticated users can delete authors."""
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.client.login(username='testuser', password='testpass123')
         author = Author.objects.first()
         # Get the count of books associated with this author
         author_books_count = author.books.count()
@@ -152,6 +156,7 @@ class BookViewSetTestCase(BaseTestCase):
     
     def test_get_books_unauthenticated(self):
         """Test that unauthenticated users can list books."""
+        self.client.logout()  # Ensure no authentication
         response = self.client.get(self.book_list_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Check the total count of books
@@ -160,22 +165,23 @@ class BookViewSetTestCase(BaseTestCase):
         
     def test_create_book_unauthenticated(self):
         """Test that unauthenticated users cannot create books."""
-        self.client.credentials()  # Ensure no authentication
+        self.client.logout()  # Ensure no authentication
+        author = Author.objects.first()
         data = {
             'title': 'New Book',
-            'publication_year': 2023,
-            'author': 1
+            'publication_year': timezone.now().year,
+            'author': author.id
         }
         response = self.client.post(self.book_list_url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         
     def test_create_book_authenticated(self):
         """Test that authenticated users can create books."""
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.client.login(username='testuser', password='testpass123')
         book_count = Book.objects.count()
         data = {
             'title': 'New Book',
-            'publication_year': 2023,
+            'publication_year': timezone.now().year,
             'author': 1
         }
         response = self.client.post(self.book_list_url, data, format='json')
@@ -185,7 +191,7 @@ class BookViewSetTestCase(BaseTestCase):
         
     def test_retrieve_book(self):
         """Test retrieving a single book."""
-        self.client.credentials()  # No auth needed for GET
+        self.client.logout()  # No auth needed for GET
         book = Book.objects.first()
         response = self.client.get(self.book_detail_url(book.id))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -200,7 +206,7 @@ class BookViewSetTestCase(BaseTestCase):
         
     def test_update_book_unauthenticated(self):
         """Test that unauthenticated users cannot update books."""
-        self.client.credentials()  # Ensure no authentication
+        self.client.logout()  # Ensure no authentication
         book = Book.objects.first()
         data = {'title': 'Updated Title'}
         response = self.client.put(self.book_detail_url(book.id), data, format='json')
@@ -209,7 +215,7 @@ class BookViewSetTestCase(BaseTestCase):
         
     def test_update_book_authenticated(self):
         """Test that authenticated users can update books."""
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.client.login(username='testuser', password='testpass123')
         book = Book.objects.first()
         data = {'title': 'Updated Title'}
         response = self.client.patch(self.book_detail_url(book.id), data, format='json')
@@ -219,7 +225,7 @@ class BookViewSetTestCase(BaseTestCase):
         
     def test_delete_book_unauthenticated(self):
         """Test that unauthenticated users cannot delete books."""
-        self.client.credentials()  # Ensure no authentication
+        self.client.logout()  # Ensure no authentication
         book = Book.objects.first()
         response = self.client.delete(self.book_detail_url(book.id))
         # Should be 401, but might be 403 if permissions are different
@@ -227,7 +233,7 @@ class BookViewSetTestCase(BaseTestCase):
         
     def test_delete_book_authenticated(self):
         """Test that authenticated users can delete books."""
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.client.login(username='testuser', password='testpass123')
         book = Book.objects.first()
         book_count = Book.objects.count()
         response = self.client.delete(self.book_detail_url(book.id))
