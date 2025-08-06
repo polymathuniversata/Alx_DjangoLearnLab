@@ -52,6 +52,9 @@ class BaseTestCase(APITestCase):
         self.author_detail_url = lambda pk: f'/api/authors/{pk}/'
         self.book_list_url = '/api/books/'
         self.book_detail_url = lambda pk: f'/api/books/{pk}/'
+        self.book_create_url = '/api/books/create/'
+        self.book_update_url = lambda pk: f'/api/books/{pk}/update/'
+        self.book_delete_url = lambda pk: f'/api/books/{pk}/delete/'
         
         # Set up authenticated client
         self.authenticated_client = APIClient()
@@ -172,7 +175,7 @@ class BookViewSetTestCase(BaseTestCase):
             'publication_year': timezone.now().year,
             'author': author.id
         }
-        response = self.client.post(self.book_list_url, data, format='json')
+        response = self.client.post(self.book_create_url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         
     def test_create_book_authenticated(self):
@@ -184,10 +187,10 @@ class BookViewSetTestCase(BaseTestCase):
             'publication_year': timezone.now().year,
             'author': 1
         }
-        response = self.client.post(self.book_list_url, data, format='json')
+        response = self.client.post(self.book_create_url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Book.objects.count(), book_count + 1)
-        self.assertEqual(Book.objects.get(id=4).title, 'New Book')
+        self.assertEqual(Book.objects.latest('id').title, 'New Book')
         
     def test_retrieve_book(self):
         """Test retrieving a single book."""
@@ -209,7 +212,7 @@ class BookViewSetTestCase(BaseTestCase):
         self.client.logout()  # Ensure no authentication
         book = Book.objects.first()
         data = {'title': 'Updated Title'}
-        response = self.client.put(self.book_detail_url(book.id), data, format='json')
+        response = self.client.put(self.book_update_url(book.id), data, format='json')
         # Should be 401, but might be 403 if permissions are different
         self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN])
         
@@ -218,7 +221,7 @@ class BookViewSetTestCase(BaseTestCase):
         self.client.login(username='testuser', password='testpass123')
         book = Book.objects.first()
         data = {'title': 'Updated Title'}
-        response = self.client.patch(self.book_detail_url(book.id), data, format='json')
+        response = self.client.patch(self.book_update_url(book.id), data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         book.refresh_from_db()
         self.assertEqual(book.title, 'Updated Title')
@@ -227,7 +230,7 @@ class BookViewSetTestCase(BaseTestCase):
         """Test that unauthenticated users cannot delete books."""
         self.client.logout()  # Ensure no authentication
         book = Book.objects.first()
-        response = self.client.delete(self.book_detail_url(book.id))
+        response = self.client.delete(self.book_delete_url(book.id))
         # Should be 401, but might be 403 if permissions are different
         self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN])
         
@@ -236,7 +239,7 @@ class BookViewSetTestCase(BaseTestCase):
         self.client.login(username='testuser', password='testpass123')
         book = Book.objects.first()
         book_count = Book.objects.count()
-        response = self.client.delete(self.book_detail_url(book.id))
+        response = self.client.delete(self.book_delete_url(book.id))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Book.objects.count(), book_count - 1)
         # Verify the book was actually deleted

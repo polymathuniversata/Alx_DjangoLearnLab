@@ -6,17 +6,10 @@ from .models import Author, Book
 from .serializers import AuthorSerializer, BookSerializer
 
 
-class BookListCreateView(generics.ListCreateAPIView):
+class ListView(generics.ListAPIView):
     """
-    API endpoint that allows books to be viewed or created.
-    
-    - GET: List all books (public access)
-        - Query parameters:
-            - search: Search in title or author name
-            - author_name: Filter by author name (partial match, case-insensitive)
-            - min_year/max_year: Filter by publication year range
-            - ordering: Sort by any field (default: title)
-    - POST: Create a new book (requires authentication)
+    A ListView for retrieving all books.
+    Provides filtering, searching, and ordering capabilities.
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
@@ -25,16 +18,7 @@ class BookListCreateView(generics.ListCreateAPIView):
     search_fields = ['title', 'author__name']
     ordering_fields = ['title', 'publication_year', 'created_at']
     ordering = ['title']
-    
-    def get_permissions(self):
-        """
-        Set permissions for the view.
-        - GET: Allow any user (including unauthenticated)
-        - POST: Require authentication
-        """
-        if self.request.method == 'GET':
-            return [permissions.AllowAny()]
-        return [permissions.IsAuthenticated()]
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         """
@@ -75,36 +59,46 @@ class BookListCreateView(generics.ListCreateAPIView):
         return queryset
 
 
-class BookDetailView(generics.RetrieveUpdateDestroyAPIView):
+class DetailView(generics.RetrieveAPIView):
     """
-    API endpoint that allows a single book to be viewed, updated or deleted.
-    
-    - GET: View book details (public access)
-    - PUT/PATCH: Update book (requires authentication)
-    - DELETE: Remove book (requires authentication)
+    A DetailView for retrieving a single book by ID.
     """
     queryset = Book.objects.select_related('author').all()
     serializer_class = BookSerializer
     lookup_field = 'pk'
-    
-    def get_permissions(self):
-        """
-        Set permissions for the view.
-        - GET: Allow any user (including unauthenticated)
-        - PUT/PATCH/DELETE: Require authentication
-        """
-        if self.request.method == 'GET':
-            return [permissions.AllowAny()]
-        return [permissions.IsAuthenticated()]
-        
-    def get_object(self):
-        """
-        Get the book object or return 404 if not found.
-        """
-        try:
-            return super().get_object()
-        except Exception as e:
-            raise Http404("Book not found")
+    permission_classes = [permissions.AllowAny]
+
+
+class CreateView(generics.CreateAPIView):
+    """
+    A CreateView for adding a new book.
+    Requires authentication.
+    """
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class UpdateView(generics.UpdateAPIView):
+    """
+    An UpdateView for modifying an existing book.
+    Requires authentication.
+    """
+    queryset = Book.objects.select_related('author').all()
+    serializer_class = BookSerializer
+    lookup_field = 'pk'
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class DeleteView(generics.DestroyAPIView):
+    """
+    A DeleteView for removing a book.
+    Requires authentication.
+    """
+    queryset = Book.objects.select_related('author').all()
+    serializer_class = BookSerializer
+    lookup_field = 'pk'
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class AuthorListCreateView(generics.ListCreateAPIView):
