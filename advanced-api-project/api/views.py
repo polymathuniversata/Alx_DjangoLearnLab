@@ -1,4 +1,5 @@
 from rest_framework import generics, filters, permissions
+from django_filters import rest_framework as django_filters
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
 from .models import Author, Book
@@ -20,7 +21,7 @@ class BookListCreateView(generics.ListCreateAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['publication_year', 'author__id']
+    filterset_fields = ['title', 'publication_year', 'author', 'author__id']
     search_fields = ['title', 'author__name']
     ordering_fields = ['title', 'publication_year', 'created_at']
     ordering = ['title']
