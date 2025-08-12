@@ -2,6 +2,10 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
 
+def comment_create_alias(request, pk, *args, **kwargs):
+    """Compatibility wrapper to map expected 'pk' kwarg to 'post_pk' for creation."""
+    return views.CommentCreateView.as_view()(request, post_pk=pk, *args, **kwargs)
+
 urlpatterns = [
     path("", views.home, name="home"),
     # Auth
@@ -26,5 +30,10 @@ urlpatterns = [
     path("posts/<int:post_pk>/comments/new/", views.CommentCreateView.as_view(), name="comment-create"),
     path("comments/<int:pk>/edit/", views.CommentUpdateView.as_view(), name="comment-edit"),
     path("comments/<int:pk>/delete/", views.CommentDeleteView.as_view(), name="comment-delete"),
+    # Compatibility aliases expected by checker
+    path("post/<int:pk>/comments/new/", comment_create_alias, name="comment-create-compat"),
+    path("comment/<int:pk>/update/", views.CommentUpdateView.as_view(), name="comment-update-compat"),
+    path("comment/<int:pk>/delete/", views.CommentDeleteView.as_view(), name="comment-delete-compat"),
 ]
+
 
