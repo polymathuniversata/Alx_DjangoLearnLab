@@ -144,6 +144,26 @@ class PostByTagListView(PostListView):
 class SearchView(PostListView):
     template_name = "blog/post_list.html"
 
+    def get_queryset(self):
+        query = self.request.GET.get('q', '')
+        if query:
+            return (
+                super()
+                .get_queryset()
+                .filter(
+                    Q(title__icontains=query) |
+                    Q(content__icontains=query) |
+                    Q(tags__name__icontains=query)
+                )
+                .distinct()
+            )
+        return super().get_queryset()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.request.GET.get('q', '')
+        return context
+
 
 # Comment CRUD views
 class CommentAuthorRequiredMixin(UserPassesTestMixin):

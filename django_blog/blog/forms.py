@@ -4,6 +4,15 @@ from django.contrib.auth.models import User
 from .models import Post, Comment, Tag
 
 
+class TagWidget(forms.TextInput):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.attrs.update({
+            'placeholder': 'Enter tags separated by commas',
+            'class': 'form-control'
+        })
+
+
 class RegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True)
     first_name = forms.CharField(required=False)
@@ -34,6 +43,7 @@ class PostForm(forms.ModelForm):
         required=False,
         help_text="Comma-separated tags (e.g. django, web, tutorial)",
         label="Tags",
+        widget=TagWidget(),
     )
 
     class Meta:
