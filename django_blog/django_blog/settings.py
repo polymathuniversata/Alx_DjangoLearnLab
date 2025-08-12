@@ -39,16 +39,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Local apps
     "blog",
+    # Third-party apps
+    "taggit",
 ]
-
-# Optional tagging library support (django-taggit). We include the string here so
-# automated checks can verify presence, but only enable it if installed to avoid
-# breaking local development environments.
-try:  # pragma: no cover
-    import taggit  # type: ignore
-    INSTALLED_APPS.append("taggit")
-except Exception:
-    pass
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
