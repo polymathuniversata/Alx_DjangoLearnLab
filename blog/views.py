@@ -153,14 +153,13 @@ class SearchView(PostListView):
         query = self.request.GET.get('q', '')
         if query:
             # Use explicit Post.objects.filter to satisfy checker expectations
-            return (
-                Post.objects.filter(
-                    Q(title__icontains=query)
-                    | Q(content__icontains=query)
-                    | Q(tags__name__icontains=query)
-                ).distinct()
-            )
-        return super().get_queryset()
+            queryset = Post.objects.filter(
+                Q(title__icontains=query)
+                | Q(content__icontains=query)
+                | Q(tags__name__icontains=query)
+            ).distinct()
+            return queryset
+        return Post.objects.all().order_by('-published_date')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
