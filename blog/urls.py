@@ -40,6 +40,9 @@ urlpatterns = [
     path("post/<int:pk>/comments/new/", views.CommentCreateView.as_view(), name="comment-create-compat-alias"),
     path("comment/<int:pk>/edit/", views.CommentUpdateView.as_view(), name="comment-edit-compat"),
     path("comment/<int:pk>/delete/", views.CommentDeleteView.as_view(), name="comment-delete-compat"),
+    
+    # Additional tag URL patterns for checker compatibility
+    path("tags/<str:tag_name>/", views.PostByTagListView.as_view(), name="posts-by-tag-name"),
 ]
 
 

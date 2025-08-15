@@ -4,7 +4,9 @@
       "Bash(python manage.py:*)",
       "Bash(pip install:*)",
       "Bash(git add:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(python:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []
