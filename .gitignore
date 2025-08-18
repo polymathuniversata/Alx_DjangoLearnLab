@@ -19,12 +19,14 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
 # Django
 *.log
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+media/
 
 # Virtual Environment
 venv/
@@ -39,7 +41,18 @@ ENV/
 
 # Environment variables
 .env
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+=======
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+>>>>>>> origin/main
