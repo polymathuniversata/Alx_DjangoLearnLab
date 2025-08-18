@@ -96,16 +96,16 @@ class FollowUserView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        if user_to_follow in request.user.following.all():
+        if user_to_follow in request.user.followers.all():
             # Unfollow
-            request.user.following.remove(user_to_follow)
+            request.user.followers.remove(user_to_follow)
             return Response(
                 {"status": "unfollowed", "detail": f"You have unfollowed {username}"},
                 status=status.HTTP_200_OK
             )
         else:
             # Follow
-            request.user.following.add(user_to_follow)
+            request.user.followers.add(user_to_follow)
             return Response(
                 {"status": "followed", "detail": f"You are now following {username}"},
                 status=status.HTTP_200_OK
