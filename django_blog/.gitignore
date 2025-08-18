@@ -2,6 +2,24 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyo
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
 # Django
 *.log
@@ -10,9 +28,12 @@ __pycache__/
 *.pyo
 *.mo
 *.sqlite3
+*.sql
+*.sqlite
 /db.sqlite3
 /media/
 /staticfiles/
+/static/
 
 # Environments
 .env
@@ -26,7 +47,27 @@ ENV/
 .vscode/
 .idea/
 *.swp
+*.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Project specific
+.Cluade/
+
+# Local development
+local_settings.py
+*.local.py
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/

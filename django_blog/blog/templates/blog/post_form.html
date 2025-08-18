@@ -3,8 +3,22 @@
   <h2>{% if object %}Edit{% else %}New{% endif %} Post</h2>
   <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save</button>
+    <div class="form-group">
+      <label for="id_title">Title:</label>
+      <input type="text" name="title" id="id_title" class="form-control" value="{{ form.title.value|default:'' }}" required>
+    </div>
+    <div class="form-group">
+      <label for="id_content">Content:</label>
+      <textarea name="content" id="id_content" class="form-control" rows="10" required>{{ form.content.value|default:'' }}</textarea>
+    </div>
+    <div class="form-group">
+      <label for="id_tags_csv">Tags:</label>
+      <input type="text" name="tags_csv" id="id_tags_csv" class="form-control" 
+             placeholder="Enter tags separated by commas (e.g., django, python, web)" 
+             value="{% if form.tags_csv.value %}{{ form.tags_csv.value }}{% endif %}">
+      <small class="form-text text-muted">Separate tags with commas. Example: django, python, web</small>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a href="{% if object %}{% url 'post-detail' object.pk %}{% else %}{% url 'post-list' %}{% endif %}" class="btn btn-secondary">Cancel</a>
   </form>
-  <p><a href="{% url 'post-list' %}">Cancel</a></p>
 {% endblock %}

@@ -1,0 +1,154 @@
+<!-- delete_book.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Book - Library Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background-color: #dc3545;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .warning {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .book-info {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #dc3545;
+        }
+        .book-info h3 {
+            margin-top: 0;
+            color: #dc3545;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .form-actions {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .navigation {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+        }
+        .navigation a {
+            margin: 0 10px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .navigation a:hover {
+            text-decoration: underline;
+        }
+        .permission-info {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗑️ Delete Book</h1>
+            <p>Remove book from the library collection</p>
+        </div>
+
+        <div class="permission-info">
+            <strong>🔐 Permission Required:</strong> You have the necessary permissions to delete books from the library.
+        </div>
+
+        <div class="warning">
+            <div class="icon">⚠️</div>
+            <h2>Warning: This action cannot be undone!</h2>
+            <p>You are about to permanently delete this book from the library collection.</p>
+        </div>
+
+        <div class="book-info">
+            <h3>Book to be deleted:</h3>
+            <p><strong>Title:</strong> {{ book.title }}</p>
+            <p><strong>Author:</strong> {{ book.author.name }}</p>
+            <p><strong>Publication Year:</strong> {{ book.publication_year }}</p>
+            <p><strong>Book ID:</strong> {{ book.id }}</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-actions">
+                <button type="submit" class="btn btn-danger">
+                    🗑️ Yes, Delete This Book
+                </button>
+                <a href="{% url 'list_books' %}" class="btn btn-secondary">
+                    ↩️ Cancel
+                </a>
+            </div>
+        </form>
+
+        <div class="navigation">
+            <h3>Quick Navigation:</h3>
+            <a href="{% url 'list_books' %}">View All Books</a>
+            <a href="{% url 'edit_book' book.id %}">Edit This Book</a>
+            <a href="{% url 'library_list' %}">Libraries</a>
+            <a href="{% url 'logout' %}">Logout</a>
+        </div>
+    </div>
+</body>
+</html>

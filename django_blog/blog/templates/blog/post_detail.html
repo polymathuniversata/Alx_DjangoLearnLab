@@ -1,69 +1,103 @@
 {% extends 'blog/base.html' %}
+
 {% block content %}
-  <article>
-    <h2>{{ post.title }}</h2>
-    <small>by {{ post.author.username }} • {{ post.published_date|date:'Y-m-d H:i' }}</small>
-    <div>
-      <p>{{ post.content|linebreaks }}</p>
+  <article class="post-detail">
+    <header class="post-header">
+      <h1 class="post-title">{{ post.title }}</h1>
+      <div class="post-meta">
+        <span>by {{ post.author.username }}</span>
+        <span>•</span>
+        <time datetime="{{ post.published_date|date:'c' }}" class="post-date">
+          {{ post.published_date|date:'F j, Y' }}
+        </time>
+        {% if user == post.author %}
+          <span>•</span>
+          <div class="post-actions">
+            <a href="{% url 'post-edit' post.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+            <a href="{% url 'post-delete' post.pk %}" class="btn btn-sm btn-outline-danger" 
+               onclick="return confirm('Are you sure you want to delete this post?')">Delete</a>
+          </div>
+        {% endif %}
+      </div>
+    </header>
+
+    <div class="post-content">
+      {{ post.content|linebreaks }}
     </div>
+
     {% if post.tags.all %}
-      <p>
-        <small>Tags:
-          {% for t in post.tags.all %}
-            <a href="{% url 'posts-by-tag' t.name %}">#{{ t.name }}</a>{% if not forloop.last %}, {% endif %}
-          {% empty %}
-            none
+      <div class="post-tags">
+        <span class="tags-label">Tags:</span>
+        <div class="tags">
+          {% for tag in post.tags.all %}
+            <a href="{% url 'posts-by-tag' tag.name %}" class="tag">
+              {{ tag.name }}
+            </a>
           {% endfor %}
-        </small>
-      </p>
+        </div>
+      </div>
     {% endif %}
   </article>
-  <p>
-    <a href="{% url 'post-list' %}">Back to Posts</a>
-    {% if user == post.author %}
-      • <a href="{% url 'post-edit' post.pk %}">Edit</a>
-      • <a href="{% url 'post-delete' post.pk %}">Delete</a>
-    {% endif %}
-  </p>
 
-  <hr>
-  <section>
-    <h3>Comments ({{ comments|length }})</h3>
+  <div class="post-navigation">
+    <a href="{% url 'post-list' %}" class="btn btn-outline-secondary">
+      &larr; Back to Posts
+    </a>
+  </div>
+
+  <section class="comments-section">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2>Comments ({{ comments|length }})</h2>
+      {% if not user.is_authenticated %}
+        <small>
+          <a href="{% url 'login' %}?next={{ request.path|urlencode }}">Log in</a> to leave a comment
+        </small>
+      {% endif %}
+    </div>
+
     {% if comments %}
       <ul class="comment-list">
-        {% for c in comments %}
-          <li class="comment-item">
-            <div>
-              <strong>{{ c.author.username }}</strong>
-              <small>• {{ c.created_at|date:'Y-m-d H:i' }}{% if c.updated_at and c.updated_at != c.created_at %} (edited){% endif %}</small>
+        {% for comment in comments %}
+          <li class="comment-item" id="comment-{{ comment.id }}">
+            <div class="comment-header">
+              <strong class="comment-author">{{ comment.author.username }}</strong>
+              <time class="comment-date" datetime="{{ comment.created_at|date:'c' }}">
+                {{ comment.created_at|date:'F j, Y' }}
+                {% if comment.updated_at and comment.updated_at != comment.created_at %}
+                  (edited)
+                {% endif %}
+              </time>
             </div>
-            <div>{{ c.content|linebreaks }}</div>
-            {% if user == c.author %}
+            <div class="comment-content">
+              {{ comment.content|linebreaks }}
+            </div>
+            {% if user == comment.author %}
               <div class="comment-actions">
-                <a href="{% url 'comment-edit' c.pk %}">Edit</a>
-                • <a href="{% url 'comment-delete' c.pk %}">Delete</a>
+                <a href="{% url 'comment-edit' comment.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                <a href="{% url 'comment-delete' comment.pk %}" class="btn btn-sm btn-outline-danger" 
+                   onclick="return confirm('Are you sure you want to delete this comment?')">Delete</a>
               </div>
             {% endif %}
           </li>
         {% endfor %}
       </ul>
     {% else %}
-      <p>No comments yet. Be the first to comment!</p>
+      <div class="alert alert-light">
+        No comments yet. Be the first to share your thoughts!
+      </div>
     {% endif %}
-  </section>
 
-  <section>
-    <h3>Leave a comment</h3>
     {% if user.is_authenticated %}
-      <form action="{% url 'comment-create' post_pk=post.pk %}" method="post">
-        {% csrf_token %}
-        {{ comment_form.as_p }}
-        <button type="submit">Post Comment</button>
-      </form>
-    {% else %}
-      <p>
-        <a href="{% url 'login' %}">Log in</a> to post a comment.
-      </p>
+      <div class="comment-form-container">
+        <h3>Leave a Comment</h3>
+        <form method="post" action="{% url 'comment-create' post_pk=post.pk %}" class="comment-form">
+          {% csrf_token %}
+          <div class="form-group">
+            {{ comment_form.content }}
+          </div>
+          <button type="submit" class="btn btn-primary">Post Comment</button>
+        </form>
+      </div>
     {% endif %}
   </section>
 {% endblock %}
