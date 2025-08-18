@@ -1,0 +1,5 @@
+/* Basic styles for Django Blog */
+:root { color-scheme: light dark; }
+body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; margin: 0; padding: 0; line-height: 1.6; }
+header { padding: 1rem 1.25rem; background: #0b5; color: #fff; }
+main { padding: 1rem 1.25rem; }
