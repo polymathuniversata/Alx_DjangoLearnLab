@@ -188,9 +188,7 @@ class FeedView(generics.ListAPIView):
         following_users = user.following.all()
         
         # Get posts from those users, ordered by creation date (most recent first)
-        queryset = Post.objects.filter(
-            author__in=following_users
-        ).select_related('author').prefetch_related('comments__author')
+        queryset = Post.objects.filter(author__in=following_users).order_by('-created_at').select_related('author').prefetch_related('comments__author')
         
         return queryset
         
