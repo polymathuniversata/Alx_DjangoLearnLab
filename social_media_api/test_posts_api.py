@@ -10,7 +10,7 @@ import django
 from django.conf import settings
 
 # Setup Django environment
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'social_media_api.settings')
 django.setup()
 
 from rest_framework.test import APITestCase, APIClient

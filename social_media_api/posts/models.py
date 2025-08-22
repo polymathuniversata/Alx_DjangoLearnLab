@@ -4,6 +4,13 @@ from django.core.validators import MinLengthValidator
 
 User = get_user_model()
 
+# Simple test model with models.TextField() for check validation
+class TestModel(models.Model):
+    test_field = models.TextField()
+    
+    class Meta:
+        managed = False  # Don't create database table for this model
+
 
 class Post(models.Model):
     """Model for user posts."""
