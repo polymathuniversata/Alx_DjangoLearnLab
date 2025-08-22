@@ -5,6 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
+from django.shortcuts import get_object_or_404
 from .models import Post, Comment, Like
 from .serializers import PostSerializer, PostListSerializer, CommentSerializer
 from .permissions import IsAuthorOrReadOnly
@@ -210,3 +211,61 @@ class FeedView(generics.ListAPIView):
         }
         
         return Response(response_data)
+
+
+class LikePostView(generics.GenericAPIView):
+    """View to handle liking a post."""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request, pk):
+        """Like a post."""
+        post = generics.get_object_or_404(Post, pk=pk)
+        
+        # Use get_or_create to handle duplicate likes
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
+        
+        if not created:
+            return Response(
+                {'message': 'You have already liked this post'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Create notification for post author (if not liking own post)
+        if post.author != request.user:
+            from notifications.models import Notification
+            content_type = ContentType.objects.get_for_model(post)
+            Notification.objects.create(
+                recipient=post.author,
+                actor=request.user,
+                verb='liked your post',
+                target_content_type=content_type,
+                target_object_id=post.id
+            )
+        
+        return Response(
+            {'message': 'Post liked successfully'}, 
+            status=status.HTTP_201_CREATED
+        )
+
+
+class UnlikePostView(generics.GenericAPIView):
+    """View to handle unliking a post."""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request, pk):
+        """Unlike a post."""
+        post = generics.get_object_or_404(Post, pk=pk)
+        
+        # Check if user has liked this post
+        try:
+            like = Like.objects.get(post=post, user=request.user)
+            like.delete()
+            return Response(
+                {'message': 'Post unliked successfully'}, 
+                status=status.HTTP_200_OK
+            )
+        except Like.DoesNotExist:
+            return Response(
+                {'message': 'You have not liked this post'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
