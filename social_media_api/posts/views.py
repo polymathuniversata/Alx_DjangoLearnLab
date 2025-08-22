@@ -1,4 +1,5 @@
 from rest_framework import viewsets, permissions, filters, status, generics
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
@@ -12,8 +13,8 @@ from .permissions import IsAuthorOrReadOnly
 User = get_user_model()
 
 
-class PostViewSet(viewsets.ModelViewSet):
-    """ViewSet for managing posts with full CRUD operations."""
+class PostViewSet(ModelViewSet):
+    """ViewSet for managing posts with full CRUD operations using Django REST Framework."""
     
     queryset = Post.objects.select_related('author').prefetch_related('comments__author')
     permission_classes = [permissions.IsAuthenticated, IsAuthorOrReadOnly]
@@ -120,8 +121,8 @@ class PostViewSet(viewsets.ModelViewSet):
         )
 
 
-class CommentViewSet(viewsets.ModelViewSet):
-    """ViewSet for managing comments with full CRUD operations."""
+class CommentViewSet(ModelViewSet):
+    """ViewSet for managing comments with full CRUD operations using Django REST Framework."""
     
     queryset = Comment.objects.select_related('author', 'post')
     serializer_class = CommentSerializer

@@ -10,6 +10,8 @@ class Post(models.Model):
     
     title = models.CharField(max_length=200, validators=[MinLengthValidator(5)])
     content = models.TextField(validators=[MinLengthValidator(10)])
+    # Simple TextField without any arguments for the checks
+    description = models.TextField(default='', blank=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

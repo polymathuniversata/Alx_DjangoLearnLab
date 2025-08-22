@@ -43,7 +43,7 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = [
-            'id', 'title', 'content', 'author', 'created_at', 
+            'id', 'title', 'content', 'description', 'author', 'created_at', 
             'updated_at', 'comment_count', 'comments', 'likes_count', 'is_liked'
         ]
         read_only_fields = ['id', 'author', 'created_at', 'updated_at']
@@ -77,7 +77,7 @@ class PostListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = [
-            'id', 'title', 'content', 'author', 'created_at', 
+            'id', 'title', 'content', 'description', 'author', 'created_at', 
             'updated_at', 'comment_count', 'likes_count', 'is_liked'
         ]
         read_only_fields = ['id', 'author', 'created_at', 'updated_at']
