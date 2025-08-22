@@ -13,6 +13,7 @@ from .serializers import (
     LoginSerializer
 )
 from rest_framework.permissions import IsAuthenticated
+from .models import CustomUser
 
 User = get_user_model()
 
@@ -97,14 +98,14 @@ class UserDetailView(generics.RetrieveAPIView):
     lookup_field = 'username'
 
 
-class FollowUserView(APIView):
+class FollowUserView(generics.GenericAPIView):
     """Follow a user."""
     permission_classes = [IsAuthenticated]
 
     def post(self, request, user_id, *args, **kwargs):
         try:
-            user_to_follow = User.objects.get(id=user_id)
-        except User.DoesNotExist:
+            user_to_follow = CustomUser.objects.all().get(id=user_id)
+        except CustomUser.DoesNotExist:
             return Response(
                 {"detail": "User not found"}, 
                 status=status.HTTP_404_NOT_FOUND
@@ -116,14 +117,14 @@ class FollowUserView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        if user_to_follow in request.user.followers.all():
+        if user_to_follow in request.user.following.all():
             return Response(
                 {"detail": f"You are already following {user_to_follow.username}"},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
         # Follow
-        request.user.followers.add(user_to_follow)
+        request.user.following.add(user_to_follow)
         
         # Create notification for the followed user
         from notifications.views import create_notification
@@ -140,14 +141,14 @@ class FollowUserView(APIView):
         )
 
 
-class UnfollowUserView(APIView):
+class UnfollowUserView(generics.GenericAPIView):
     """Unfollow a user."""
     permission_classes = [IsAuthenticated]
 
     def post(self, request, user_id, *args, **kwargs):
         try:
-            user_to_unfollow = User.objects.get(id=user_id)
-        except User.DoesNotExist:
+            user_to_unfollow = CustomUser.objects.all().get(id=user_id)
+        except CustomUser.DoesNotExist:
             return Response(
                 {"detail": "User not found"}, 
                 status=status.HTTP_404_NOT_FOUND
@@ -159,14 +160,14 @@ class UnfollowUserView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        if user_to_unfollow not in request.user.followers.all():
+        if user_to_unfollow not in request.user.following.all():
             return Response(
                 {"detail": f"You are not following {user_to_unfollow.username}"},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
         # Unfollow
-        request.user.followers.remove(user_to_unfollow)
+        request.user.following.remove(user_to_unfollow)
         return Response(
             {"status": "unfollowed", "detail": f"You have unfollowed {user_to_unfollow.username}"},
             status=status.HTTP_200_OK
