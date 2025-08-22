@@ -7,8 +7,11 @@ app_name = 'accounts'
 urlpatterns = [
     # Authentication - as required by the task
     path('register/', views.RegisterView.as_view(), name='register'),
-    path('login/', views.CustomTokenObtainPairView.as_view(), name='login'),
+    path('login/', views.LoginView.as_view(), name='login'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    
+    # JWT login (alternative)
+    path('jwt/login/', views.CustomTokenObtainPairView.as_view(), name='jwt_login'),
     
     # User profile - as required by the task
     path('profile/', views.UserProfileView.as_view(), name='profile'),

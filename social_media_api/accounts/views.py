@@ -2,12 +2,15 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model
 from .serializers import (
     UserSerializer, 
     RegisterSerializer, 
     CustomTokenObtainPairSerializer,
-    ChangePasswordSerializer
+    ChangePasswordSerializer,
+    LoginSerializer
 )
 from rest_framework.permissions import IsAuthenticated
 
@@ -24,6 +27,23 @@ class RegisterView(generics.CreateAPIView):
 class CustomTokenObtainPairView(TokenObtainPairView):
     """Custom token obtain view with additional user data in the response."""
     serializer_class = CustomTokenObtainPairSerializer
+
+
+class LoginView(ObtainAuthToken):
+    """Login view that returns a token for authentication."""
+    serializer_class = LoginSerializer
+    
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({
+            'token': token.key,
+            'user_id': user.pk,
+            'username': user.username,
+            'email': user.email
+        })
 
 
 class UserProfileView(generics.RetrieveUpdateAPIView):

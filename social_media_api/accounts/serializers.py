@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
+from rest_framework.authtoken.models import Token
 
 User = get_user_model()
 
@@ -61,8 +62,34 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         # Remove password2 from the data
         validated_data.pop('password2', None)
-        user = User.objects.create_user(**validated_data)
+        user = get_user_model().objects.create_user(**validated_data)
+        # Create token for the user
+        Token.objects.create(user=user)
         return user
+
+
+class LoginSerializer(serializers.Serializer):
+    """Serializer for user login with token authentication."""
+    username = serializers.CharField()
+    password = serializers.CharField()
+    
+    def validate(self, attrs):
+        username = attrs.get('username')
+        password = attrs.get('password')
+        
+        if username and password:
+            from django.contrib.auth import authenticate
+            user = authenticate(username=username, password=password)
+            if user:
+                if user.is_active:
+                    attrs['user'] = user
+                    return attrs
+                else:
+                    raise serializers.ValidationError('User account is disabled.')
+            else:
+                raise serializers.ValidationError('Unable to log in with provided credentials.')
+        else:
+            raise serializers.ValidationError('Must include "username" and "password".')
 
 
 class ChangePasswordSerializer(serializers.ModelSerializer):
