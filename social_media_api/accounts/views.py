@@ -96,14 +96,14 @@ class FollowUserView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        if user_to_follow in request.user.following.all():
+        if user_to_follow in request.user.followers.all():
             return Response(
                 {"detail": f"You are already following {user_to_follow.username}"},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
         # Follow
-        request.user.following.add(user_to_follow)
+        request.user.followers.add(user_to_follow)
         
         # Create notification for the followed user
         from notifications.views import create_notification
@@ -139,14 +139,14 @@ class UnfollowUserView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        if user_to_unfollow not in request.user.following.all():
+        if user_to_unfollow not in request.user.followers.all():
             return Response(
                 {"detail": f"You are not following {user_to_unfollow.username}"},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
         # Unfollow
-        request.user.following.remove(user_to_unfollow)
+        request.user.followers.remove(user_to_unfollow)
         return Response(
             {"status": "unfollowed", "detail": f"You have unfollowed {user_to_unfollow.username}"},
             status=status.HTTP_200_OK
