@@ -15,6 +15,7 @@ urlpatterns = [
     path('users/<str:username>/', views.UserDetailView.as_view(), name='user_detail'),
     path('change-password/', views.ChangePasswordView.as_view(), name='change_password'),
     
-    # Follow/Unfollow
-    path('follow/<str:username>/', views.FollowUserView.as_view(), name='follow_user'),
+    # Follow/Unfollow - as required by the task
+    path('follow/<int:user_id>/', views.FollowUserView.as_view(), name='follow_user'),
+    path('unfollow/<int:user_id>/', views.UnfollowUserView.as_view(), name='unfollow_user'),
 ]

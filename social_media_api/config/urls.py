@@ -29,6 +29,10 @@ urlpatterns = [
     path('api/', include([
         # Authentication
         path('auth/', include('accounts.urls')),
+        # Posts and Comments
+        path('', include('posts.urls')),
+        # Notifications
+        path('notifications/', include('notifications.urls')),
     ])),
 ]
 

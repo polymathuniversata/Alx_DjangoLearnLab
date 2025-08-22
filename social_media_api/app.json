@@ -1,0 +1,36 @@
+{
+  "name": "Social Media API",
+  "description": "Django REST API for social media functionality",
+  "image": "heroku/python",
+  "repository": "https://github.com/polymathuniversata/Alx_DjangoLearnLab",
+  "keywords": ["python", "django", "rest-api", "social-media"],
+  "addons": [
+    "heroku-postgresql:mini"
+  ],
+  "env": {
+    "SECRET_KEY": {
+      "description": "Django secret key for cryptographic signing",
+      "generator": "secret"
+    },
+    "DJANGO_ENVIRONMENT": {
+      "description": "Django environment setting",
+      "value": "production"
+    },
+    "ALLOWED_HOSTS": {
+      "description": "Comma-separated list of allowed hosts",
+      "value": ".herokuapp.com"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "eco"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ],
+  "stack": "heroku-20"
+}

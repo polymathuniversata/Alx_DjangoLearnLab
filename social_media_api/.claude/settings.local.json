@@ -10,7 +10,10 @@
       "Bash(python manage.py:*)",
       "Bash(timeout 5 python manage.py runserver --noreload)",
       "Bash(python test:*)",
-      "Bash(del test_setup.py)"
+      "Bash(del test_setup.py)",
+      "Bash(claude doctor)",
+      "Bash(pip install:*)",
+      "Bash(set DJANGO_ENVIRONMENT=production)"
     ],
     "deny": [],
     "ask": []

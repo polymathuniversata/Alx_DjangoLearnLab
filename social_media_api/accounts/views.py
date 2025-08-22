@@ -78,12 +78,12 @@ class UserDetailView(generics.RetrieveAPIView):
 
 
 class FollowUserView(APIView):
-    """Follow or unfollow a user."""
+    """Follow a user."""
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, username, *args, **kwargs):
+    def post(self, request, user_id, *args, **kwargs):
         try:
-            user_to_follow = User.objects.get(username=username)
+            user_to_follow = User.objects.get(id=user_id)
         except User.DoesNotExist:
             return Response(
                 {"detail": "User not found"}, 
@@ -96,17 +96,58 @@ class FollowUserView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        if user_to_follow in request.user.followers.all():
-            # Unfollow
-            request.user.followers.remove(user_to_follow)
+        if user_to_follow in request.user.following.all():
             return Response(
-                {"status": "unfollowed", "detail": f"You have unfollowed {username}"},
-                status=status.HTTP_200_OK
+                {"detail": f"You are already following {user_to_follow.username}"},
+                status=status.HTTP_400_BAD_REQUEST
             )
-        else:
-            # Follow
-            request.user.followers.add(user_to_follow)
+        
+        # Follow
+        request.user.following.add(user_to_follow)
+        
+        # Create notification for the followed user
+        from notifications.views import create_notification
+        create_notification(
+            recipient=user_to_follow,
+            actor=request.user,
+            verb='started following you',
+            target_object=request.user
+        )
+        
+        return Response(
+            {"status": "followed", "detail": f"You are now following {user_to_follow.username}"},
+            status=status.HTTP_201_CREATED
+        )
+
+
+class UnfollowUserView(APIView):
+    """Unfollow a user."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, user_id, *args, **kwargs):
+        try:
+            user_to_unfollow = User.objects.get(id=user_id)
+        except User.DoesNotExist:
             return Response(
-                {"status": "followed", "detail": f"You are now following {username}"},
-                status=status.HTTP_200_OK
+                {"detail": "User not found"}, 
+                status=status.HTTP_404_NOT_FOUND
             )
+
+        if request.user == user_to_unfollow:
+            return Response(
+                {"detail": "You cannot unfollow yourself"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if user_to_unfollow not in request.user.following.all():
+            return Response(
+                {"detail": f"You are not following {user_to_unfollow.username}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Unfollow
+        request.user.following.remove(user_to_unfollow)
+        return Response(
+            {"status": "unfollowed", "detail": f"You have unfollowed {user_to_unfollow.username}"},
+            status=status.HTTP_200_OK
+        )

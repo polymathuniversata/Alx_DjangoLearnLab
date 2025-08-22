@@ -24,11 +24,11 @@ class CustomUser(AbstractUser):
     location = models.CharField(_('location'), max_length=100, blank=True)
     website = models.URLField(_('website'), max_length=200, blank=True)
     
-    # Following/Follower relationships - followers field as required by task
-    followers = models.ManyToManyField(
+    # Following relationships - following field as required by task
+    following = models.ManyToManyField(
         'self',
         through='UserFollowing',
-        related_name='following_users',
+        related_name='followers',
         symmetrical=False,
         blank=True
     )
@@ -44,12 +44,12 @@ class CustomUser(AbstractUser):
     @property
     def follower_count(self):
         """Return the number of followers."""
-        return self.following_users.count()
+        return self.followers.count()
     
     @property
     def following_count(self):
         """Return the number of users being followed."""
-        return self.followers.count()
+        return self.following.count()
 
 
 class UserFollowing(models.Model):
@@ -57,12 +57,12 @@ class UserFollowing(models.Model):
     
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        related_name='followings',
+        related_name='user_following_set',
         on_delete=models.CASCADE
     )
     following_user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        related_name='followings_user',
+        related_name='user_followers_set',
         on_delete=models.CASCADE
     )
     created_at = models.DateTimeField(auto_now_add=True)
