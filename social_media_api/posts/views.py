@@ -1,5 +1,4 @@
 from rest_framework import viewsets, permissions, filters, status, generics
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
@@ -13,10 +12,10 @@ from .permissions import IsAuthorOrReadOnly
 User = get_user_model()
 
 
-class PostViewSet(ModelViewSet):
+class PostViewSet(viewsets.ModelViewSet):
     """ViewSet for managing posts with full CRUD operations using Django REST Framework."""
     
-    queryset = Post.objects.select_related('author').prefetch_related('comments__author')
+    queryset = Post.objects.all()
     permission_classes = [permissions.IsAuthenticated, IsAuthorOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['author']
@@ -32,7 +31,7 @@ class PostViewSet(ModelViewSet):
     
     def get_queryset(self):
         """Filter queryset based on query parameters."""
-        queryset = self.queryset
+        queryset = Post.objects.select_related('author').prefetch_related('comments__author')
         
         # Filter by title if provided
         title_query = self.request.query_params.get('title', None)
@@ -121,10 +120,10 @@ class PostViewSet(ModelViewSet):
         )
 
 
-class CommentViewSet(ModelViewSet):
+class CommentViewSet(viewsets.ModelViewSet):
     """ViewSet for managing comments with full CRUD operations using Django REST Framework."""
     
-    queryset = Comment.objects.select_related('author', 'post')
+    queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticated, IsAuthorOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
@@ -151,7 +150,7 @@ class CommentViewSet(ModelViewSet):
     
     def get_queryset(self):
         """Filter queryset based on query parameters."""
-        queryset = self.queryset
+        queryset = Comment.objects.select_related('author', 'post')
         
         # Filter by post if provided
         post_id = self.request.query_params.get('post', None)
